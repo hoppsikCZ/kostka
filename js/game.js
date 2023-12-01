@@ -93,7 +93,7 @@ document.getElementById('bThrow').addEventListener('click', () => {
 });
 
 document.getElementById('bEndTurn').addEventListener('click', () => {
-    score = calcSore(true);
+    score = calcSore(true, false);
     let vsechnyLocked = true;
 
     kostky.forEach((item) => {
@@ -101,7 +101,7 @@ document.getElementById('bEndTurn').addEventListener('click', () => {
             vsechnyLocked = false;
     });
 
-    if (calcSore(false) > score) {
+    if (calcSore(false, false) > score) {
         alert("Ještě jsou na ploše kostky, které je možné označit!");
         return;
     } else if (vsechnyLocked) {
@@ -204,7 +204,7 @@ function setup() {
     }
 }
 
-function calcSore(onlySelected) {
+function calcSore(onlySelected, lock = true) {
     let numbers = [0, 0, 0, 0, 0, 0];
     let resultScore = 0;
     let postupka = true;
@@ -247,7 +247,7 @@ function calcSore(onlySelected) {
     if (dvojice === 3)
         resultScore = 1000;
 
-    if (onlySelected && resultScore !== 1) {
+    if (lock && resultScore !== 1) {
         kostky.forEach((item) => {
         if ((item.dieDiv.getAttribute("data-locked") === "true") && item.dieDiv.getAttribute("data-used") === "false") {
             item.dieDiv.setAttribute("data-used", "true");
