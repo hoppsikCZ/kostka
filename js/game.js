@@ -73,7 +73,7 @@ document.getElementById('bThrow').addEventListener('click', () => {
     if (score < 0)
         alert("Neplatný výběr kostek!");
     else if (score === 0)
-        alert("Musíš nahrát více než v minulém kole!");
+        alert("Musíš nahrát více než v minulém kole! Vyber nejaké kostky kliknutím na ně.");
     else {
         currentScore += score;
         kostky.forEach((item) => {
