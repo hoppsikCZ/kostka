@@ -112,8 +112,6 @@ document.getElementById('bEndTurn').addEventListener('click', () => {
     }
 
     kostky.forEach((item) => {
-        if (item.dieDiv.getAttribute("data-locked") === "false")
-            vsechnyLocked = false;
         item.dieDiv.setAttribute("data-locked", "false");
         item.dieDiv.setAttribute("data-used", "false");
         item.image.style.outline = "solid red 0px";
@@ -131,6 +129,14 @@ document.getElementById('bChangePlayerCount').addEventListener('click', () => {
     if (playerCount < 6) {
         playerCount++;
         setup();
+        kostky.forEach((item) => {
+            item.dieDiv.setAttribute("data-locked", "false");
+            item.dieDiv.setAttribute("data-used", "false");
+            item.image.style.outline = "solid red 0px";
+            item.throw();
+        });
+
+        currentScore = 0;
     } else
         alert("Byl dosažen maximálmí možný počet hráčů!")
 });
