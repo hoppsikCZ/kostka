@@ -247,7 +247,7 @@ function calcSore(onlySelected) {
     if (dvojice === 3)
         resultScore = 1000;
 
-    if (onlySelected && reultScore > 0) {
+    if (onlySelected && resultScore > 0) {
         kostky.forEach((item) => {
         if ((item.dieDiv.getAttribute("data-locked") === "true") && item.dieDiv.getAttribute("data-used") === "false" && resultScore !== -1) {
             item.dieDiv.setAttribute("data-used", "true");
