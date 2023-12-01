@@ -104,12 +104,12 @@ document.getElementById('bEndTurn').addEventListener('click', () => {
     if (calcSore(false) > score) {
         alert("Ještě jsou na ploše kostky, které je možné označit!");
         return;
-    } else if (score > 0 && score + currentScore >= 350) {
-        skoreHracu[activePlayer] += currentScore + score;
-    } else if (vsechnyLocked) {
+    else if (vsechnyLocked) {
         alert("Nelze ukončit tah, jsou-li všechny kostky uzamčeny! Házej znovu.");
         return;
-    }
+    } else if (score > 0 && score + currentScore >= 350) {
+        skoreHracu[activePlayer] += currentScore + score;
+    } 
 
     kostky.forEach((item) => {
         if (item.dieDiv.getAttribute("data-locked") === "false")
