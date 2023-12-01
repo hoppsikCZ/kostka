@@ -25,7 +25,6 @@ setup();
 function buildDie() {
     const dieDiv = document.createElement("div");
     const image = document.createElement("img");
-    let h = Math.ceil(Math.random() * 6);
 
     dieDiv.classList.add("dieDiv");
     dieDiv.classList.add("col-4");
@@ -34,8 +33,8 @@ function buildDie() {
     dieDiv.classList.add("justify-content-center");
     dieDiv.setAttribute("data-locked", "false");
     dieDiv.setAttribute("data-used", "false");
-    dieDiv.setAttribute("data-value", h);
-    image.setAttribute("src", "./img/kostka" + h + ".png");
+    dieDiv.setAttribute("data-value", "6");
+    image.setAttribute("src", "./img/kostka6.png");
     image.setAttribute("alt", "kostka");
     dieDiv.appendChild(document.createElement("figure")).appendChild(image);
 
@@ -64,28 +63,57 @@ function buildPlayer(num) {
 }
 
 document.getElementById('bThrow').addEventListener('click', () => { 
-    score = calcSore(true);
+    let score = calcSore(true);
+    let nextThrow = true;
+    kostky.forEach((item) => {
+        if (item.dieDiv.getAttribute("data-locked") === "false")
+            nextThrow = false;
+    });
+
     if (score < 0)
         alert("Neplatný výběr kostek!");
     else if (score === 0)
-        alert("Musíš nahrát více než v minulém kole");
+        alert("Musíš nahrát více než v minulém kole!");
     else {
         currentScore += score;
         kostky.forEach((item) => {
             if (item.dieDiv.getAttribute("data-locked") !== "true")
                 item.throw();
         });
+        
+        if (nextThrow) {
+            kostky.forEach((item) => {
+                item.throw();
+                item.image.style.outline = "solid green 0px";
+                item.dieDiv.setAttribute("data-locked", "false");
+                item.dieDiv.setAttribute("data-used", "false");
+            });
+        }
     }
 });
 
 document.getElementById('bEndTurn').addEventListener('click', () => {
     score = calcSore(true);
+    let vsechnyLocked = true;
 
-    if (score > 0 && score + currentScore >= 350) {
+    kostky.forEach((item) => {
+        if (item.dieDiv.getAttribute("data-locked") === "false")
+            vsechnyLocked = false;
+    });
+
+    if (calcSore(false) > score) {
+        alert("Ještě jsou na ploše kostky, které je možné označit!");
+        return;
+    } else if (score > 0 && score + currentScore >= 350) {
         skoreHracu[activePlayer] += currentScore + score;
+    } else if (vsechnyLocked) {
+        alert("Nelze ukončit tah, jsou-li všechny kostky uzamčeny! Házej znovu.");
+        return;
     }
 
     kostky.forEach((item) => {
+        if (item.dieDiv.getAttribute("data-locked") === "false")
+            vsechnyLocked = false;
         item.dieDiv.setAttribute("data-locked", "false");
         item.dieDiv.setAttribute("data-used", "false");
         item.image.style.outline = "solid red 0px";
@@ -97,6 +125,18 @@ document.getElementById('bEndTurn').addEventListener('click', () => {
 
     if (++activePlayer >= playerCount)
         activePlayer = 0;
+});
+
+document.getElementById('bChangePlayerCount').addEventListener('click', () => { 
+    if (playerCount < 6) {
+        playerCount++;
+        setup();
+    } else
+        alert("Byl dosažen maximálmí možný počet hráčů!")
+});
+
+document.getElementById('bRules').addEventListener('click', () => { 
+    window.open("https://www.kramekprodeti.cz/fotky45931/fotov/_ps_42351Pravidla-her-v-kostky.pdf");
 });
 
 /*function suma(cisla) {
@@ -144,18 +184,22 @@ function hod() {
 }*/
 
 function setup() {
-    do {
-        playerCount = prompt("Zadej počet hráčů");
-    } while (isNaN(playerCount) || playerCount < 1);
-
-
     for (let i = 0; i < 6; i++) {
-        kostky[i] = buildDie();
-        divKostek.appendChild(kostky[i].dieDiv);
+        if (kostky[i] == null) {
+            kostky[i] = buildDie();
+            divKostek.appendChild(kostky[i].dieDiv);
+        }
+
+        kostky[i].throw();
 
         if (i < playerCount) {
-            hraci[i] = buildPlayer(i + 1);
-            divHracu.appendChild(hraci[i]);
+            if (hraci[i] == null) {
+                hraci[i] = buildPlayer(i + 1);
+                divHracu.appendChild(hraci[i]);
+            }
+
+            skoreHracu[i] = 0;
+            hraci[i].innerHTML = '<p style="text-align:center">Hráč ' + (i + 1) + '</p>';
         }
     }
 }
@@ -170,8 +214,6 @@ function calcSore(onlySelected) {
     kostky.forEach((item) => {
         if ((!onlySelected || item.dieDiv.getAttribute("data-locked") === "true") && item.dieDiv.getAttribute("data-used") === "false") {
             numbers[item.dieDiv.getAttribute("data-value") - 1]++;
-            item.dieDiv.setAttribute("data-used", "true");
-            item.image.style.outline = "solid red 3px";
         }
     });
 
@@ -180,8 +222,8 @@ function calcSore(onlySelected) {
         if (numbers[i] !== 1)
             postupka = false;
 
-        if (numbers[i] === 2)
-            dvojice++;
+        if (numbers[i] / 2 >= 1 && numbers[i] <= 2 && numbers[i] % 2 === 0)
+            dvojice += numbers[i] / 2;
 
         if (i === 0) {
             if (numbers[i] >= 3)
@@ -196,12 +238,19 @@ function calcSore(onlySelected) {
             neplatne = true;
     }
     
-    if (neplatne && onlySelected === true)
+    if (neplatne)
         resultScore = (-1);
     else if (postupka === true)
         resultScore = 1500;
     else if (dvojice === 3)
         resultScore = 1000;
+
+    kostky.forEach((item) => {
+        if ((item.dieDiv.getAttribute("data-locked") === "true") && item.dieDiv.getAttribute("data-used") === "false" && resultScore !== -1) {
+            item.dieDiv.setAttribute("data-used", "true");
+            item.image.style.outline = "solid red 3px";
+        }
+    });
 
     return resultScore;
 }
