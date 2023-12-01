@@ -238,19 +238,22 @@ function calcSore(onlySelected) {
             neplatne = true;
     }
     
-    if (neplatne)
+    if (neplatne && onlySelected)
         resultScore = (-1);
-    else if (postupka === true)
+        
+    if (postupka === true)
         resultScore = 1500;
-    else if (dvojice === 3)
+        
+    if (dvojice === 3)
         resultScore = 1000;
 
-    kostky.forEach((item) => {
+    if (onlySelected && reultScore > 0) {
+        kostky.forEach((item) => {
         if ((item.dieDiv.getAttribute("data-locked") === "true") && item.dieDiv.getAttribute("data-used") === "false" && resultScore !== -1) {
             item.dieDiv.setAttribute("data-used", "true");
             item.image.style.outline = "solid red 3px";
-        }
-    });
-
+        } 
+        });
+    }
     return resultScore;
 }
